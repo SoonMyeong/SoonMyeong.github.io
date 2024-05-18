@@ -194,6 +194,12 @@ You can start by [opening an issue](https://github.com/jeffreytse/jekyll-theme-y
 
 This theme is licensed under the [MIT license](https://opensource.org/licenses/mit-license.php) © JeffreyTse.
 
+## 로컬 실행
+
+```bash
+bundle exec jekyll serve
+```
+
 <!-- External links -->
 
 [jekyll]: https://jekyllrb.com/
