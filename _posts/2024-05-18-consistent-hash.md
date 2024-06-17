@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 대규모시스템설계기초- 4장 안정 해시 설계
+title: 대규모시스템설계기초- 5장 안정 해시 설계
 subtitle: 안정 해시 설계
 categories: book
 tags: [hash,consistent hash]
