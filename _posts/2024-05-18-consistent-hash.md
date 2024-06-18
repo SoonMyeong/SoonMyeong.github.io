@@ -8,7 +8,7 @@ tags: [hash,consistent hash]
 대부분의 그림 출처 : [https://donghyeon.dev/인프라/2022/03/20/안정-해시-설계/](https://donghyeon.dev/%EC%9D%B8%ED%94%84%EB%9D%BC/2022/03/20/%EC%95%88%EC%A0%95-%ED%95%B4%EC%8B%9C-%EC%84%A4%EA%B3%84/)
 
 
-### 들어가면서 ..
+### 들어가면서 ...
 
 수평적 규모 확장성을 달성하기 위해 요청 또는 데이터를 서버에 균등하게 나누는 것이 중요하다.
 
