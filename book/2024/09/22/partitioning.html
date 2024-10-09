@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="google-translate-customization" content="108d9124921d80c3-80e20d618ff053c8-g4f02ec6f3dba68b7-c"><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>데이터중심 애플리케이션 설계 - 파티셔닝 | SoonWorld</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="데이터중심 애플리케이션 설계 - 파티셔닝" />
+<meta name="author" content="Soon" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="목차" />
+<meta property="og:description" content="목차" />
+<link rel="canonical" href="https://soonmyeong.github.io/jekyll-theme-yat/book/2024/09/22/partitioning.html" />
+<meta property="og:url" content="https://soonmyeong.github.io/jekyll-theme-yat/book/2024/09/22/partitioning.html" />
+<meta property="og:site_name" content="SoonWorld" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2024-09-22T00:00:00+00:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="데이터중심 애플리케이션 설계 - 파티셔닝" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","author":{"@type":"Person","name":"Soon"},"dateModified":"2024-09-22T00:00:00+00:00","datePublished":"2024-09-22T00:00:00+00:00","description":"목차","headline":"데이터중심 애플리케이션 설계 - 파티셔닝","mainEntityOfPage":{"@type":"WebPage","@id":"https://soonmyeong.github.io/jekyll-theme-yat/book/2024/09/22/partitioning.html"},"url":"https://soonmyeong.github.io/jekyll-theme-yat/book/2024/09/22/partitioning.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="icon" href="">
+  <link rel="canonical" href="https://SoonMyeong.github.io">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/typeface-noto-sans@0.0.72/index.min.css">
+  <link rel="stylesheet" href="/jekyll-theme-yat/assets/css/main.css">
+  <script src="/jekyll-theme-yat/assets/js/main.js"></script><link type="application/atom+xml" rel="alternate" href="https://soonmyeong.github.io/jekyll-theme-yat/feed.xml" title="SoonWorld" /><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/default.min.css">
+<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js"></script>
+<!-- and it's easy to individually load additional languages -->
+<script charset="UTF-8"
+        src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/languages/go.min.js"
+        async></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Init highlight js
+document.addEventListener('DOMContentLoaded', function(event) {
+  var els = document.querySelectorAll('pre code')
+
+  function addLangData(block) {
+    var outer = block.parentElement.parentElement.parentElement;
+    var lang = block.getAttribute('data-lang');
+    for (var i = 0; i < outer.classList.length; i++) {
+      var cls = outer.classList[i];
+      if (cls.startsWith('language-')) {
+        lang = cls;
+        break;
+      }
+    }
+    if (!lang) {
+      cls = block.getAttribute('class');
+      lang = cls ? cls.replace('hljs ', '') : '';
+    }
+    if (lang.startsWith('language-')) {
+      lang = lang.substr(9);
+    }
+    block.setAttribute('class', 'hljs ' + lang);
+    block.parentNode.setAttribute('data-lang', lang);
+  }
+
+  function addBadge(block) {
+    var enabled = ('true' || 'true').toLowerCase();
+    if (enabled == 'true') {
+      var pre = block.parentElement;
+      pre.classList.add('badge');
+    }
+  }
+
+  function handle(block) {
+    addLangData(block);
+    addBadge(block)
+    hljs.highlightBlock(block);
+  }
+
+  for (var i = 0; i < els.length; i++) {
+    var el = els[i];
+    handle(el);
+  }
+});
+</script>
+
+<style>
+  /* code language badge */
+  pre.badge::before {
+    content: attr(data-lang);
+    color: #fff;
+    background-color: #ff4e00;
+    padding: 0 .5em;
+    border-radius: 0 2px;
+    text-transform: uppercase;
+    text-align: center;
+    min-width: 32px;
+    display: inline-block;
+    position: absolute;
+    right: 0;
+  }
+
+  /* fix wrong badge display for firefox browser */
+  code > table pre::before {
+    display: none;
+  }
+</style>
+<script
+  src="//cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.7/umd/photoswipe-lightbox.umd.min.js" async></script>
+<script
+  src="//cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.7/umd/photoswipe.umd.min.js" async></script>
+<link
+  href="//cdnjs.cloudflare.com/ajax/libs/photoswipe/5.3.7/photoswipe.min.css"
+  rel="stylesheet"
+/>
+<style>
+  .pswp .pswp__container .pswp__img {
+    background-color: white;
+  }
+</style>
+
+<script>
+  function initPhotoSwipe() {
+    let customOptions = {};
+
+    try {
+      const data = ``.replaceAll("=>", ":");
+      customOptions = JSON.parse(data);
+    } catch (e) {
+      console.info("Invalid custom photo previewer options! " + e.message);
+    }
+
+    // Define object and gallery options
+    const options = Object.assign(
+      {
+        gallery: "section.main",
+        children: "a.photo-swipe",
+        photo_scale: 2,
+        // dynamic import is not supported in UMD version
+        pswpModule: PhotoSwipe,
+      },
+      customOptions
+    );
+
+    const galleryEl = document.querySelector(options.gallery);
+    if (!galleryEl) {
+      return;
+    }
+
+    const imgEls = [];
+    const els = galleryEl.querySelectorAll("img:not(.emoji)");
+    els.forEach((el) => {
+      if (el.src.trim() == "") {
+        return;
+      }
+      if (!imgEls.includes(el)) {
+        imgEls.push(el);
+      }
+    });
+
+    if (imgEls.length === 0) {
+      return;
+    }
+
+    imgEls.forEach((imgEl) => {
+      imgEl.outerHTML = `
+      <a class="photo-swipe"
+        href="${imgEl.src}"
+        data-pswp-width="${
+          Math.max(imgEl.naturalWidth, imgEl.width) * options.photo_scale
+        }"
+        data-pswp-height="${
+          Math.max(imgEl.naturalHeight, imgEl.height) * options.photo_scale
+        }"
+        data-pswp-caption="${imgEl.getAttribute("caption") || imgEl.alt}"
+        target="_blank">
+        ${imgEl.outerHTML}
+      </a>`;
+    });
+
+    // Initialize PhotoSwipe 5
+    var lightbox = new PhotoSwipeLightbox(options);
+
+    lightbox.init();
+  }
+
+  window.addEventListener("load", initPhotoSwipe);
+</script>
+</head>
+<body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<header class="site-header " role="banner">
+
+  <div class="wrapper">
+    <div class="site-header-inner"><span class="site-brand"><a class="site-brand-inner" rel="author" href="/jekyll-theme-yat/">
+  <img class="site-favicon" title="SoonWorld" src="" onerror="this.style.display='none'">
+  SoonWorld
+</a>
+</span><nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+          <label for="nav-trigger">
+            <span class="menu-icon">
+              <svg viewBox="0 0 18 15" width="18px" height="15px">
+                <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+              </svg>
+            </span>
+          </label>
+
+          <div class="trigger"><a class="page-link" href="/jekyll-theme-yat/about.html">ABOUT</a><a class="page-link" href="/jekyll-theme-yat/archives.html">ARCHIVES</a><a class="page-link" href="/jekyll-theme-yat/categories.html">CATEGORIES</a><a class="page-link" href="/jekyll-theme-yat/">HOME</a><a class="page-link" href="/jekyll-theme-yat/tags.html">TAGS</a>
+
+
+
+
+
+
+
+
+
+<span class="page-link">
+
+
+
+<div id="google_translate_element" style="display: none;">
+</div>
+
+<span class="ct-language">
+  <ul class="list-unstyled ct-language-dropdown">
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="en">
+          
+          <img src="https://cdn.countryflags.com/thumbs/united-states-of-america/flag-400.png" title="English">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="fr">
+          
+          <img src="https://cdn.countryflags.com/thumbs/france/flag-400.png" title="French">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="zh-CN">
+          
+          <img src="https://cdn.countryflags.com/thumbs/china/flag-400.png" title="Chinese(Simple)">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ja">
+          
+          <img src="https://cdn.countryflags.com/thumbs/japan/flag-400.png" title="Japanese">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ko">
+          
+          <img src="https://cdn.countryflags.com/thumbs/south-korea/flag-400.png" title="Korean">
+          
+        </a>
+      </li>
+    
+      <li>
+        <a href="#" class="lang-select" data-lang="ru">
+          
+          <img src="https://cdn.countryflags.com/thumbs/russia/flag-400.png" title="Russian">
+          
+        </a>
+      </li>
+    
+  </ul>
+</span>
+
+<script type="text/javascript">
+function googleTranslateElementInit() {
+  new google.translate.TranslateElement({
+    pageLanguage: 'en',
+    autoDisplay: false,
+    layout: google.translate.TranslateElement.InlineLayout.VERTICAL
+  }, 'google_translate_element');
+
+  // Links to cross-origin destinations are unsafe
+  var gll = document.getElementsByClassName('goog-logo-link')[0];
+  if (gll) {
+    gll.setAttribute('rel', 'noopener');
+  }
+
+  function restoreLang() {
+    var iframe = document.getElementsByClassName('goog-te-banner-frame')[0];
+    if (!iframe) return;
+
+    var innerDoc = iframe.contentDocument || iframe.contentWindow.document;
+    var restore_el = innerDoc.getElementsByTagName("button");
+
+    for (var i = 0; i < restore_el.length; i++) {
+      if (restore_el[i].id.indexOf("restore") >= 0) {
+        restore_el[i].click();
+        var close_el = innerDoc.getElementsByClassName("goog-close-link");
+        close_el[0].click();
+        return;
+      }
+    }
+  }
+
+  function triggerHtmlEvent(element, eventName) {
+    var event;
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent(eventName, true, true);
+      element.dispatchEvent(event);
+    } else {
+      event = document.createEventObject();
+      event.eventType = eventName;
+      element.fireEvent('on' + event.eventType, event);
+    }
+  }
+
+  var googleCombo = document.querySelector("select.goog-te-combo");
+  var langSelect = document.querySelector('.ct-language');
+  langSelect.addEventListener('click', function(event) {
+    if (!event.target) {
+      return;
+    }
+
+    var selected = document.querySelector('.ct-language .ct-language-selected');
+    if (selected) {
+      selected.classList.remove('ct-language-selected');
+    }
+
+    var target = event.target;
+    while (target && target !== langSelect ) {
+      if (target.matches('.lang-select')) {
+        break;
+      }
+      target = target.parentElement;
+    }
+
+    if (target && target.matches('.lang-select')) {
+      var lang = target.getAttribute('data-lang');
+      if (googleCombo.value == lang) {
+        restoreLang();
+      } else {
+        target.parentElement.classList.add('ct-language-selected');
+        googleCombo.value = lang;
+        triggerHtmlEvent(googleCombo, 'change');
+      }
+    }
+
+    event.preventDefault();
+  });
+}
+</script>
+
+<script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" async></script>
+</span></div>
+        </nav></div>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    var lastScrollY = getScrollPos().y;
+    var documentElement = document.documentElement;
+
+    function storeScrollData() {
+      var y = getScrollPos().y;var scrollStatus = "";
+
+      if (y <= 0) {
+        scrollStatus = "top";
+      } else if ((window.innerHeight + y) >= document.body.offsetHeight) {
+        scrollStatus = "bottom";
+      } else {
+        var isScrollDown = (y - lastScrollY > 0) ? true : false;
+        scrollStatus = isScrollDown ? "down" : "up";
+      }
+
+      lastScrollY = y;
+      documentElement.setAttribute("data-scroll-status", scrollStatus);
+    }
+
+    window.addEventListener('scroll', function(e) {
+      storeScrollData();
+    });
+
+    storeScrollData();
+  }
+  document.addEventListener('DOMContentLoaded', initHeader);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+  function hashLocate(hashValue) {
+    hashValue = hashValue.replace(/^.*#h-/, '');
+    hashValue = decodeURIComponent(hashValue);
+    var element = document.getElementById(hashValue);
+
+    if (!element) {
+      return;
+    }
+
+    var header = document.querySelector('header.site-header');
+    var headerRect = header.getBoundingClientRect();
+    var headerTop = Math.floor(headerRect.top);
+    var headerHeight = Math.floor(headerRect.height);
+    var scrollPos = getScrollPos();
+    var offsetY = element.offsetTop - (headerTop + headerHeight + 20);
+
+    if (offsetY == scrollPos.y) {
+      return;
+    }
+
+    if (headerTop == 0  && offsetY > scrollPos.y) {
+      offsetY += headerHeight + 2;
+    } else if (headerTop < 0  && offsetY < scrollPos.y) {
+      offsetY -= headerHeight - 2;
+    }
+
+    smoothScrollTo(offsetY);
+  }
+
+  // The first event occurred
+  window.addEventListener('load', function(event) {
+    if (window.location.hash) {
+      hashLocate(window.location.hash);
+    }
+  });
+
+  // The first event occurred
+  window.addEventListener('click', function(event) {
+    if (event.target.tagName.toLowerCase() == 'a') {
+      hashLocate(event.target.getAttribute('href'));
+    }
+  });
+</script>
+<div class="theme-toggle">
+  <input type="checkbox" id="theme-switch">
+  <label for="theme-switch">
+    <div class="toggle"></div>
+    <div class="names">
+      <p class="light">Light</p>
+      <p class="dark">Dark</p>
+    </div>
+  </label>
+</div>
+
+
+
+
+<script>
+  (function() {
+    var sw = document.getElementById('theme-switch');
+    var html = document.getElementsByTagName('html')[0];
+    var nightModeOption = ('auto' || 'auto').toLowerCase();
+    var storage = nightModeOption === 'manual'
+        ? localStorage
+        : sessionStorage;
+    var themeData = loadThemeData();
+
+    function saveThemeData(data) {
+      storage.setItem('theme', JSON.stringify(data));
+    }
+
+    function loadThemeData() {
+      var data = storage.getItem('theme');
+      try {
+        data = JSON.parse(data ? data : '');
+      } catch(e) {
+        data = { nightShift: undefined, autoToggleAt: 0 };
+        saveThemeData(data);
+      }
+      return data;
+    }
+
+    function handleThemeToggle(nightShift) {
+      themeData.nightShift = nightShift;
+      saveThemeData(themeData);
+      html.dataset.theme = nightShift ? 'dark' : 'light';
+      setTimeout(function() {
+        sw.checked = nightShift ? true : false;
+      }, 50);
+    }
+
+    function autoThemeToggle() {
+      // Next time point of theme toggle
+      var now = new Date();
+      var toggleAt = new Date();
+      var hours = now.getHours();
+      var nightShift = hours >= 19 || hours <=7;
+
+      if (nightShift) {
+        if (hours > 7) {
+          toggleAt.setDate(toggleAt.getDate() + 1);
+        }
+        toggleAt.setHours(7);
+      } else {
+        toggleAt.setHours(19);
+      }
+
+      toggleAt.setMinutes(0);
+      toggleAt.setSeconds(0);
+      toggleAt.setMilliseconds(0)
+
+      var delay = toggleAt.getTime() - now.getTime();
+
+      // auto toggle theme mode
+      setTimeout(function() {
+        handleThemeToggle(!nightShift);
+      }, delay);
+
+      return {
+        nightShift: nightShift,
+        toggleAt: toggleAt.getTime()
+      };
+    }
+
+    // Listen the theme toggle event
+    sw.addEventListener('change', function(event) {
+      handleThemeToggle(event.target.checked);
+    });
+
+    if (nightModeOption == 'auto') {
+      var data = autoThemeToggle();
+
+      // Toggle theme by local setting
+      if (data.toggleAt > themeData.autoToggleAt) {
+        themeData.autoToggleAt = data.toggleAt;
+        handleThemeToggle(data.nightShift);
+      } else {
+        handleThemeToggle(themeData.nightShift);
+      }
+    } else if (nightModeOption == 'manual') {
+      handleThemeToggle(themeData.nightShift);
+    } else {
+      var nightShift = themeData.nightShift;
+      if (nightShift === undefined) {
+        nightShift = nightModeOption === 'on';
+      }
+      handleThemeToggle(nightShift);
+    }
+  })();
+</script>
+<div id="click-to-top" class="click-to-top">
+  <i class="fa fa-arrow-up"></i>
+</div>
+<script>
+  (function () {
+    const clickToTop = document.getElementById('click-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 100) {
+        clickToTop.classList.add('show')
+      }else {
+        clickToTop.classList.remove('show')
+      }
+    });
+    clickToTop.addEventListener('click', () => {
+      window.smoothScrollTo(0);
+    });
+  })();
+</script>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <div class="framework">
+  <section class="main">
+
+     <div class="post">
+  <section>
+
+
+
+
+
+
+
+
+
+<header class="post-header">
+  <h1 class="post-title p-name" itemprop="name headline">데이터중심 애플리케이션 설계 - 파티셔닝</h1>
+  <h2 class="post-subtitle">6장 파티셔닝</h2>
+
+  <div class="post-meta">
+    <time class="dt-published" datetime="2024-09-22T00:00:00+00:00" itemprop="datePublished"><i class="fa fa-calendar"></i> Sep 22, 2024
+    </time>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <span class="post-reading-time left-vsplit"><i class="fa fa-clock-o"></i> About 6 mins</span>
+  </div><div class="post-tags"><a class="post-tag" href="/jekyll-theme-yat/tags.html#partitioning">#partitioning</a></div></header>
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+    <div class="post-content e-content" itemprop="articleBody">
+
+      <h1 id="목차">목차</h1>
+
+<h2 id="1-파티셔닝">1. 파티셔닝</h2>
+<ul>
+  <li>이번장에서 다루는 파티셔닝은 대용량 데이터베이스를 의도적으로 작은단위로 쪼개는 방법인 샤딩을 뜻함.</li>
+  <li>파티셔닝을 원하는 주된 이유는 ‘확장성’</li>
+  <li>대용량 데이터셋을 파티셔닝 하는 몇가지 방법을 소개한다.</li>
+  <li>파티셔닝의 리벨런싱(재균형화)에 대해서도 소개한다.</li>
+  <li>데이터베이스가 어떻게 요청을 올바른 파티션에 전달하고 질의를 실행하는지 개략적으로 알아볼 예정</li>
+</ul>
+
+<h2 id="2-키-값-데이터-파티셔닝">2. 키-값 데이터 파티셔닝</h2>
+<ul>
+  <li>파티셔닝의 목적은 데이터와 질의 부하를 노드 사이에 고르게 분산시키는 것임</li>
+  <li>근데 파티셔닝이 고르게 이뤄지지 않으면?
+    <ul>
+      <li>다른 파티션보다 부하를 받는 파티션이 생기게 될텐데 이처럼 불균형하게 부하가 높은 파티션을 핫스팟 이라 부름</li>
+    </ul>
+  </li>
+  <li>핫스팟을 회피하기 좋은 방법으로 키-값 데이터 모델(키 범위 기준, 키 해시값 기준)을 사용</li>
+</ul>
+
+<h3 id="2-1-키-범위-기준-파티셔닝">2-1. 키 범위 기준 파티셔닝</h3>
+<ul>
+  <li>종이 백과사전처럼 각 파티션에 연속된 범위의 키를 할당하는 것
+    <ul>
+      <li>각 범위들 사이의 경계를 알면 어떤 키가 어떤 파티션에 있는지 쉽게 찾을 수 있다.</li>
+    </ul>
+  </li>
+  <li>키 범위의 크기가 반드시 동일할 필요는 없다.
+    <ul>
+      <li>why? 데이터가 고르게 분포하지 않을 수도 있기 때문
+        <ul>
+          <li>ex) 파티션은 12개, 키는 26개인 케이스에서 키의 범위를 2개씩만 동일하게 설정할 경우
+    마지막 파티션에는 2개 이상의 키가 범위로 잡히게 된다.</li>
+        </ul>
+      </li>
+      <li>데이터를 고르게 분산시키려면 파티션 경계를 데이터에 맞춰 조정해야 한다.
+        <ul>
+          <li>이는 관리자가 수동으로 선택 or DB 가 자동으로 선택할 수 있다. (파티션 재균형화에서 계속)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>각 파티션 내에서는 키를 정렬된 순서로 저장할 수 있다.</li>
+</ul>
+
+<h3 id="2-2-키-해시값-기준-파티셔닝">2-2. 키 해시값 기준 파티셔닝</h3>
+<ul>
+  <li>쏠림현상과 핫스팟 위험 때문에 많은 분산 데이터스토어에서는 해시함수를 사용한다.</li>
+  <li>키에 적합한 해시함수를 구하고, 각 파티션에 키 범위 대신 해시값 범위를 할당하고 해시값이
+파티션의 범위에 속하는 모든 키를 해당 파티션에 할당한다. (consistence hashing)</li>
+  <li>대신 범위 질의를 효율적으로 실행할 수 없다. (키가 해시함수로 바뀌면서 모든 파티션에 흩어질거니까..)
+    <h4 id="쏠린-작업부하와-핫스팟-완화">쏠린 작업부하와 핫스팟 완화</h4>
+  </li>
+  <li>해시값 기준으로 파티셔닝 시 핫스팟을 줄이는데 도움은 되지만 완벽히 제거할 순 없다.
+    <ul>
+      <li>항상 동일한 키를 읽고 쓰는 극단적 상황에서는… 모든 요청이 동일한 파티션으로 간다..</li>
+      <li>이런 극단적 상황이 발생할 경우 애플리케이션에서 쏠림을 완화해야 한다.</li>
+      <li>ex) 키의 시작이나 끝에 임의의 숫자를 붙인다. 등..
+        <ul>
+          <li>임의의 숫자를 붙임으로서 한 키에 대한 쓰기 작업이 다른 키로 균등하게 분산되고 다른파티션으로 분산될테니</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="3-보조색인-파티셔닝">3. 보조색인 파티셔닝</h2>
+<ul>
+  <li>위에서 설명한 키-값 데이터 모델은 레코드를 기본 키를 통해서만 접근한다.</li>
+  <li>보조 색인이 있는 데이터베이스를 파티셔닝 하는데 쓰이는 방법에 대해 알아보자.</li>
+</ul>
+
+<h3 id="3-1-문서-기준-보조-색인-파티셔닝">3-1. 문서 기준 보조 색인 파티셔닝</h3>
+<p>https://github.com/user-attachments/assets/5e6949ac-8ed0-4eba-a5e4-8f1798e4c254</p>
+<ul>
+  <li>예시로 알아보겠음</li>
+  <li>예를 들어 중고차를 판매하는 웹사이트를 운영한다고 가정, 각 항목에는 문서ID 라 부르는 고유 ID 가 있고 데이터베이스를 문서ID 기준으로
+파티셔닝 한다.</li>
+  <li>사용자들이 차를 검색 시 색상과 제조사로 필터링하게 하려면 color 와 make 에 보조 색인을 만든다.
+    <ul>
+      <li>색인을 선언했다면 DB가 자동으로 색인 생성을 할 수 있다.</li>
+    </ul>
+  </li>
+  <li>이럴 경우 각 파티션은 완전히 독립적으로 동작한다.</li>
+  <li>각 파티션은 자신의 보조색인을 유지, 파티션에 속하는 문서만 담당
+    <ul>
+      <li>따라서 문서 파티셔닝 색인은 지역색인(local index) 이라고도 한다.</li>
+    </ul>
+  </li>
+  <li>모든 파티션으로 질의를 보내 얻은 결과를 모두 모아야 되는 단점이 있다.
+    <ul>
+      <li>이 방법을 스캐터/개더 방식이라고도 한다.</li>
+      <li>이래서 데이터베이스 벤더들은 대부분 보조 색인 질의가 단일 파티션에서만 실행되도록
+  단파티셔닝 방식을 설계하기를 권장한다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="3-2-용어-기준-보조-색인-파티셔닝">3-2. 용어 기준 보조 색인 파티셔닝</h3>
+<p>https://github.com/user-attachments/assets/20947641-0f84-474e-b1f9-0552a91960c1</p>
+<ul>
+  <li>문서 기준 보조 색인처럼 지역색인하지말고 전역색인 하면 되지않을까?
+    <ul>
+      <li>그치만 한 노드에만 색인을 저장할 순 없다. 해당 노드에 병목되면?</li>
+      <li>그래서 전역색인도 결국 파티셔닝을 해야하는데 기본키 색인과는 다른 식으로 할 수 있다.</li>
+    </ul>
+  </li>
+  <li>그림을 보면 확인할 수 있는데 컬러 알파벳의 a~r 까지는 파티션0 에 색인, s~z 까지는 파티션1에 색인</li>
+  <li>찾고자 하는 용어에 따라 색인의 파티션이 결정되므로 용어 기준으로 파티셔닝됐다고 한다.</li>
+  <li>여기서 용어란 문서에 등장하는 모든 단어를 뜻한다.</li>
+  <li>용어 자체로 파티셔닝 시 범위 스캔에 유용하며</li>
+  <li>용어의 해시값으로 파티셔닝 시 부하가 더 고르게 분산된다.</li>
+  <li>문서 파티셔닝 색인에 비해 읽기가 효율적인 장점이 있다.
+    <ul>
+      <li>모든 파티션에 스캐터/개더를 실행할 필요 없이 용어를 포함하는 파티션으로만 요청을 보내면 되니까</li>
+    </ul>
+  </li>
+  <li>문서 파티셔닝 색인에 비해 쓰기가 느리다는 단점이 있다.
+    <ul>
+      <li>단일 문서를 쓸 때 해당 색인의 여러 파티션에 영향을 줄 수 있기 때문</li>
+    </ul>
+  </li>
+  <li>현실에서 전역 보조 색인은 대개 비동기로 갱신된다.
+    <ul>
+      <li>쓰기 실행 후 바로 조회 시 반영 안될 수 있다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="4-파티션-재균형화-리밸런싱">4. 파티션 재균형화 (리밸런싱)</h2>
+<ul>
+  <li>리벨런싱 : 클러스터에서 한 노드가 담당하던 부하를 다른 노드로 옮기는 과정</li>
+  <li>리벨런싱 실행 시 만족 시킬 것으로 기대되는 최소 요구사항
+    <ul>
+      <li>리벨런싱 후 부하가 클러스터 내에 있는 노드들 사이 균등하게 분배</li>
+      <li>리벨런싱 도중에도 데이터베이스 읽쓰기 요청 받아들여야 함</li>
+      <li>노드들 사이 데이터가 필요 이상으로 옮겨지면 안됨 (속도 이슈)</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="4-1-재균형화-전략">4-1. 재균형화 전략</h3>
+<h3 id="4-2-파티션-개수-고정-파티셔닝">4-2. 파티션 개수 고정 파티셔닝</h3>
+<ul>
+  <li>파티션을 노드 대수 보다 많이 만들고 각 노드에 여러 파티션을 할당 하는 것</li>
+  <li>클러스터에 노드 추가 시 새 노드는 파티션이 균일하게 분배될 때 까지 기존 노드에 있는 파티션 몇개를 뺏어온다.</li>
+  <li>리밸런싱 중 들어오는 요청은 기존에 할당된 파티션을 사용</li>
+  <li>장점 : 파티션을 통째로 이동, 그저 노드만 바뀔 뿐</li>
+  <li>단점 : 파티션 수는 고정인데 전체 데이터셋 크기 변동이 심할경우 적절한 파티션 수 지정이 어렵다.
+    <ul>
+      <li>대부분 처음 설정된 파티션 수 = 사용 가능한 노드 대수의 최대치</li>
+      <li>개별 파티션 크기는 클러스터 전체 데이터 크기에 비례한다.
+        <ul>
+          <li>파티션을 너무 크게 나누면 리밸런싱 작업이나 노드 장애 복구 시 비용이 많이든다. (크기가 크니까)</li>
+          <li>파티션을 너무 작게 나누면 오버헤드가 너무 커진다. (리밸런싱 시 파티션 이동 작업 횟수 증가 등..)</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>리악, 엘라스틱서치, 카우치베이스, 볼드모트 에서 사용됨</li>
+</ul>
+
+<h3 id="4-3-동적-파티셔닝">4-3. 동적 파티셔닝</h3>
+<ul>
+  <li>HBase 나 리싱크DB 는 파티션을 동적으로 만든다.</li>
+  <li>파티션 개수가 전체 데이터 용량에 맞춰 조정된다는 이점이 있다.</li>
+  <li>빈 데이터베이스의 경우 파티션 경계에 대한 사전 정보가 없으므로 시작 시 파티션이 하나라는 함정이 있음
+    <ul>
+      <li>이 문제를 완화하려고 초기 파티션 집합을 설정할 수 있게 함</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="4-4-노드-비례-파티셔닝">4-4. 노드 비례 파티셔닝</h3>
+<ul>
+  <li>카산드라와 케타마 에서 사용하고 있으며 파티션 개수가 노드 대수에 비례하게 하는 것</li>
+  <li>노드 당 파티션 개수를 고정 한다.</li>
+  <li>일반적으로 데이터 용량이 증가할 수록 노드도 많이 필요하므로 이 방법을 쓰면 개별 파티션 크기도 상당히 안정적으로 유지 됨</li>
+  <li>단점으로 신규 노드 추가로 파티션 분할 시 무작위로 분할되긴 하나 consistence hashing 기법을 사용하면 된다.</li>
+</ul>
+
+<h2 id="5-운영-시-리밸런싱-자동-or-수동">5. 운영 시 리밸런싱 (자동 or 수동)</h2>
+<ul>
+  <li>완전 자동 재균형화
+    <ul>
+      <li>유지보수에 손이 덜 가므로 편리할 수 있으나 예측이 어렵기도 하다.</li>
+    </ul>
+  </li>
+  <li>리밸런싱 과정에서 사람이 개입하는게 좋을 수도 있다. (승인해주기)</li>
+</ul>
+
+<h2 id="6-요청-라우팅">6. 요청 라우팅</h2>
+<p>https://github.com/user-attachments/assets/614d77a0-3a7d-45be-835d-d761ef748af0</p>
+<ul>
+  <li>서비스 디스커버리의 일종이다.</li>
+  <li>많은 분산 데이터 시스템은 클러스터 메타데이터를 추적하기 위해 별도의 코디네이션 서비스를 사용함( ex. 주키퍼, k8s의 컨트롤플레인)</li>
+</ul>
+
+<h2 id="정리">정리</h2>
+<ul>
+  <li>주요 파티셔닝 기법
+    <ul>
+      <li>키범위 파티셔닝</li>
+      <li>키 해시 파티셔닝</li>
+    </ul>
+  </li>
+  <li>보조색인 파티셔닝 기법
+    <ul>
+      <li>문서 파티셔닝 색인</li>
+      <li>용어 파티셔닝 색인</li>
+    </ul>
+  </li>
+</ul>
+
+
+
+    </div>
+
+</article>
+<div class="post-nav"><a class="previous" href="/jekyll-theme-yat/book/2024/07/31/data-model-and-query.html" title="데이터중심 애플리케이션 설계 - 2장 데이터 모델과 질의 언어">데이터중심 애플리케이션 설계 - 2장 데이터...</a><span></span></div><div class="post-related">
+      <div>Related Articles</div>
+      <ul>
+        <li class="">
+          <a class="post-link"
+            href="/jekyll-theme-yat/book/2024/06/18/web-crawler.html"
+            title="대규모시스템설계기초- 9장 웹크롤러 설계">
+            대규모시스템설계기초- 9장 웹크롤러 설계<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li><li class="">
+          <a class="post-link"
+            href="/jekyll-theme-yat/book/2024/09/22/partitioning.html"
+            title="데이터중심 애플리케이션 설계 - 파티셔닝">
+            데이터중심 애플리케이션 설계 - 파티셔닝<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li><li class="">
+          <a class="post-link"
+            href="/jekyll-theme-yat/book/2024/07/31/data-model-and-query.html"
+            title="데이터중심 애플리케이션 설계 - 2장 데이터 모델과 질의 언어">
+            데이터중심 애플리케이션 설계 - 2장 데이터 모델과 질의 언어<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li><li class="">
+          <a class="post-link"
+            href="/jekyll-theme-yat/book/2024/05/18/consistent-hash.html"
+            title="대규모시스템설계기초- 5장 안정 해시 설계">
+            대규모시스템설계기초- 5장 안정 해시 설계<span class="post-badges">
+  <span class="post-badge badge-top">TOP</span>
+  <span class="post-badge badge-new">NEW</span>
+</span>
+</a>
+        </li></ul>
+    </div><div class="post-comments"></div></section>
+</div>
+
+
+  </section>
+  <section class="sidebar" style="margin-left: 15px;">
+    <!-- Get sidebar items --><style type="text/css" media="screen">
+.post-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+</style>
+
+<div class="post-menu">
+  <div class="post-menu-title">TOC</div>
+  <div class="post-menu-content"></div>
+</div>
+
+<script>
+  function generateContent() {
+    var menu = document.querySelector(".post-menu");
+    var menuContent =  menu.querySelector(".post-menu-content");
+    var headings = document.querySelector(".post-content").querySelectorAll("h2, h3, h4, h5, h6");
+
+    // Hide menu when no headings
+    if (headings.length === 0) {
+      return menu.style.display = "none";
+    }
+
+    // Generate post menu
+    var menuHTML = '';
+    for (var i = 0; i < headings.length; i++) {
+      var h = headings[i];
+      menuHTML += (
+        '<li class="h-' + h.tagName.toLowerCase() + '">'
+        + '<a href="#h-' + h.getAttribute('id') + '">' + h.textContent + '</a></li>');
+    }
+
+    menuContent.innerHTML = '<ul>' + menuHTML + '</ul>';
+
+    // The header element
+    var header = document.querySelector('header.site-header');
+
+    function doMenuCollapse(index, over_items) {
+      var items = menuContent.firstChild.children;
+
+      if (over_items == undefined) {
+        over_items = 20;
+      }
+
+      if (items.length < over_items) {
+        return;
+      }
+
+      var activeItem = items[index];
+      var beginItem = activeItem
+      var endItem = activeItem
+      var beginIndex = index;
+      var endIndex = index + 1;
+      while (beginIndex >= 0
+        && !items[beginIndex].classList.contains('h-h2')) {
+        beginIndex -= 1;
+      }
+      while (endIndex < items.length
+        && !items[endIndex].classList.contains('h-h2')) {
+        endIndex += 1;
+      }
+      for (var i = 0; i < beginIndex; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+      for (var i = beginIndex + 1; i < endIndex; i++) {
+        item = items[i]
+        // if (!item.classList.contains('h-h2')) {
+          item.style.display = '';
+        // }
+      }
+      for (var i = endIndex; i < items.length; i++) {
+        item = items[i]
+        if (!item.classList.contains('h-h2')) {
+          item.style.display = 'none';
+        }
+      }
+    }
+
+    // Init menu collapsed
+    doMenuCollapse(-1);
+
+    // Active the menu item
+    window.addEventListener('scroll', function (event) {
+      var lastActive = menuContent.querySelector('.active');
+      var changed = true;
+      var activeIndex = -1;
+      for (var i = headings.length - 1; i >= 0; i--) {
+        var h = headings[i];
+        var headingRect = h.getBoundingClientRect();
+        var headerRect = header.getBoundingClientRect();
+        var headerTop = Math.floor(headerRect.top);
+        var headerHeight = Math.floor(headerRect.height);
+        var headerHeight = headerTop + headerHeight + 20;
+        if (headingRect.top <= headerHeight) {
+          var id = 'h-' + h.getAttribute('id');
+          var a = menuContent.querySelector('a[href="#' + id  + '"]');
+          var curActive = a.parentNode;
+          if (curActive) {
+            curActive.classList.add('active');
+            activeIndex = i;
+          }
+          if (lastActive == curActive) {
+            changed = false;
+          }
+          break;
+        }
+      }
+      if (changed) {
+        if (lastActive) {
+          lastActive.classList.remove('active');
+        }
+        doMenuCollapse(activeIndex);
+      }
+      event.preventDefault();
+    });
+  }
+  generateContent();
+</script>
+</section>
+</div>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/jekyll-theme-yat/"></data>
+
+  <div class="wrapper">
+    <div class="site-footer-inner"><div>Unpublished Work <span class="copyleft">&copy;</span> 2017-2024 Soon</div>
+      <div>Powered by <a title="Jekyll is a simple, blog-aware, static site
+      generator." href="https://jekyllrb.com/">Jekyll</a> &amp; <a title="Yat, yet
+      another theme." href="https://github.com/jeffreytse/jekyll-theme-yat">Yat Theme</a>.</div>
+      <div class="footer-col rss-subscribe">Subscribe <a href="/jekyll-theme-yat/feed.xml">via RSS</a></div>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

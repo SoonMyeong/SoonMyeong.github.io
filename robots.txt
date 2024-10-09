@@ -1,0 +1,1 @@
+Sitemap: https://soonmyeong.github.io/jekyll-theme-yat/sitemap.xml
